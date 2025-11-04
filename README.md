@@ -46,12 +46,13 @@ DB_PORT=3306
 
 ### Endpoints الأساسية
 
-- `/api/v1/auth` - المصادقة
+- `/api/v1/auth` - المصادقة (تسجيل الدخول، التسجيل، معلومات المستخدم)
 - `/api/v1/students` - الطلاب
 - `/api/v1/teachers` - المعلمون
 - `/api/v1/universities` - الجامعات
 - `/api/v1/majors` - التخصصات
 - `/api/v1/applications` - الطلبات
+- `/api/v1/recommendations` - التوصيات (جديد)
 - `/api/v1/survey` - الاستبيانات
 - `/api/v1/dashboard` - لوحة التحكم
 - `/api/v1/admin` - الإدارة
@@ -63,6 +64,7 @@ DB_PORT=3306
 - `/api/v1/messages` - الرسائل
 - `/api/v1/interviews` - المقابلات
 - `/api/v1/semesters` - الفصول الدراسية
+- `/api/v1/university-users` - مستخدمو الجامعات
 
 ## المصادقة
 
@@ -80,9 +82,17 @@ Authorization: Bearer <token>
 POST /api/v1/auth/login
 {
   "email": "user@example.com",
-  "password": "password",
-  "role": "student"
+  "password": "password"
 }
+```
+
+**ملاحظة:** الـ API يكتشف الدور تلقائياً من البريد الإلكتروني. لا حاجة لإرسال `role` في الطلب.
+
+### الحصول على التوصيات
+
+```bash
+GET /api/v1/recommendations
+Authorization: Bearer <token>
 ```
 
 ### الحصول على الإحصائيات
