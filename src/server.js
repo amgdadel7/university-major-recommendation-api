@@ -48,6 +48,7 @@ const permissionsRoutes = require('./routes/permissions');
 const universityUsersRoutes = require('./routes/university-users');
 const schemaRoutes = require('./routes/schema');
 const recommendationsRoutes = require('./routes/recommendations');
+const aiRoutes = require('./routes/ai');
 
 // API Routes
 const API_VERSION = process.env.API_VERSION || 'v1';
@@ -72,6 +73,7 @@ app.use(`/api/${API_VERSION}/admin`, permissionsRoutes);
 app.use(`/api/${API_VERSION}/university-users`, universityUsersRoutes);
 app.use(`/api/${API_VERSION}/schema`, schemaRoutes);
 app.use(`/api/${API_VERSION}/recommendations`, recommendationsRoutes);
+app.use(`/api/${API_VERSION}/ai`, aiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -437,5 +437,190 @@ router.get('/me', authenticate, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/me:
+ *   put:
+ *     summary: تحديث معلومات المستخدم الحالي
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *                 example: أحمد محمد
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               age:
+ *                 type: integer
+ *                 example: 20
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female]
+ *                 example: male
+ *     responses:
+ *       200:
+ *         description: تم التحديث بنجاح
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Profile updated successfully
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: بيانات غير صحيحة
+ *       401:
+ *         description: غير مصرح
+ */
+// Update current user profile
+router.put('/me', authenticate, async (req, res) => {
+  try {
+    const { id, role } = req.user;
+    const { fullName, email, age, gender } = req.body;
+
+    // Build update fields dynamically
+    const updateFields = [];
+    const updateValues = [];
+
+    if (fullName !== undefined) {
+      updateFields.push('FullName = ?');
+      updateValues.push(fullName);
+    }
+
+    if (email !== undefined) {
+      // Check if email already exists (excluding current user)
+      let checkQuery = '';
+      if (role === 'student') {
+        checkQuery = 'SELECT StudentID FROM Students WHERE Email = ? AND StudentID != ?';
+      } else if (role === 'teacher') {
+        checkQuery = 'SELECT TeacherID FROM Teachers WHERE Email = ? AND TeacherID != ?';
+      } else if (role === 'university') {
+        checkQuery = 'SELECT UserID FROM UniversityUsers WHERE Email = ? AND UserID != ?';
+      } else if (role === 'admin') {
+        checkQuery = 'SELECT AdminID FROM Admins WHERE Email = ? AND AdminID != ?';
+      }
+
+      if (checkQuery) {
+        const [existing] = await pool.execute(checkQuery, [email, id]);
+        if (existing.length > 0) {
+          return res.status(400).json({
+            success: false,
+            message: 'Email already exists'
+          });
+        }
+      }
+
+      updateFields.push('Email = ?');
+      updateValues.push(email);
+    }
+
+    if (age !== undefined && (role === 'student' || role === 'teacher')) {
+      updateFields.push('Age = ?');
+      updateValues.push(age);
+    }
+
+    if (gender !== undefined && (role === 'student' || role === 'teacher')) {
+      updateFields.push('Gender = ?');
+      updateValues.push(gender);
+    }
+
+    if (updateFields.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No fields to update'
+      });
+    }
+
+    // Determine table name based on role
+    let tableName = '';
+    let idColumn = '';
+    if (role === 'student') {
+      tableName = 'Students';
+      idColumn = 'StudentID';
+    } else if (role === 'teacher') {
+      tableName = 'Teachers';
+      idColumn = 'TeacherID';
+    } else if (role === 'university') {
+      tableName = 'UniversityUsers';
+      idColumn = 'UserID';
+    } else if (role === 'admin') {
+      tableName = 'Admins';
+      idColumn = 'AdminID';
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role'
+      });
+    }
+
+    // Build and execute update query
+    updateValues.push(id);
+    const updateQuery = `UPDATE ${tableName} SET ${updateFields.join(', ')} WHERE ${idColumn} = ?`;
+    
+    await pool.execute(updateQuery, updateValues);
+
+    // Fetch updated user data
+    let user = null;
+    if (role === 'student') {
+      const [users] = await pool.execute(
+        'SELECT StudentID as id, FullName as name, Email, Age, Gender, CreatedAt FROM Students WHERE StudentID = ?',
+        [id]
+      );
+      user = users[0];
+    } else if (role === 'teacher') {
+      const [users] = await pool.execute(
+        'SELECT TeacherID as id, FullName as name, Email, Role, UniversityID, CreatedAt FROM Teachers WHERE TeacherID = ?',
+        [id]
+      );
+      user = users[0];
+    } else if (role === 'university') {
+      const [users] = await pool.execute(
+        'SELECT UserID as id, FullName as name, Email, Role, UniversityID, Position, IsActive, IsMainAdmin, CreatedAt, LastLoginAt FROM UniversityUsers WHERE UserID = ?',
+        [id]
+      );
+      user = users[0];
+    } else if (role === 'admin') {
+      const [users] = await pool.execute(
+        'SELECT AdminID as id, FullName as name, Email, Role, IsActive, CreatedAt, LastLoginAt FROM Admins WHERE AdminID = ?',
+        [id]
+      );
+      user = users[0];
+    }
+
+    // Log audit
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    const userAgent = req.get('user-agent') || '';
+    await logAudit(id, user?.name || 'Unknown', 'update', 'user', 'Profile updated', ipAddress, userAgent, 'low');
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: user
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update profile',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
 

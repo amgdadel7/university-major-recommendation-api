@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('../config/database');
 const { authenticate, isAdmin } = require('../middleware/auth');
+const { invalidateAIConfigCache } = require('../services/deepseek');
 const router = express.Router();
 
 // Get all users (students, teachers, admins)
@@ -428,6 +429,8 @@ router.put('/ai-settings', authenticate, isAdmin, async (req, res) => {
         values
       );
     }
+
+    invalidateAIConfigCache();
 
     res.json({
       success: true,
