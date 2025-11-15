@@ -25,7 +25,6 @@ router.get('/', authenticate, isAdmin, async (req, res) => {
       data: backups
     });
   } catch (error) {
-    console.error('Get backups error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get backups',
@@ -58,7 +57,6 @@ router.post('/', authenticate, isAdmin, async (req, res) => {
           ['success', 2500000000, result.insertId] // 2.5 GB
         );
       } catch (error) {
-        console.error('Update backup status error:', error);
       }
     }, 1000);
 
@@ -71,7 +69,6 @@ router.post('/', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create backup error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create backup',
@@ -102,7 +99,6 @@ router.get('/:id', authenticate, isAdmin, async (req, res) => {
       data: backups[0]
     });
   } catch (error) {
-    console.error('Get backup error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get backup',
@@ -136,7 +132,6 @@ router.post('/:id/restore', authenticate, isAdmin, async (req, res) => {
       message: 'Backup restored successfully'
     });
   } catch (error) {
-    console.error('Restore backup error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to restore backup',
@@ -157,7 +152,6 @@ router.delete('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Backup deleted successfully'
     });
   } catch (error) {
-    console.error('Delete backup error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete backup',

@@ -149,7 +149,6 @@ router.get('/stats', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get dashboard stats error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get dashboard statistics',

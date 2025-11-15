@@ -67,7 +67,6 @@ const isUniversity = async (req, res, next) => {
         req.user.universityId = users[0].UniversityID;
       }
     } catch (error) {
-      console.error('Error fetching UniversityID:', error);
     }
   }
   

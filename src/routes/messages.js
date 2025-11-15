@@ -23,7 +23,6 @@ router.get('/conversations', authenticate, async (req, res) => {
       data: conversations
     });
   } catch (error) {
-    console.error('Get conversations error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get conversations',
@@ -73,7 +72,6 @@ router.get('/conversations/:conversationId/messages', authenticate, async (req, 
       data: messages
     });
   } catch (error) {
-    console.error('Get messages error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get messages',
@@ -139,7 +137,6 @@ router.post('/conversations/:conversationId/messages', authenticate, async (req,
       }
     });
   } catch (error) {
-    console.error('Send message error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to send message',
@@ -193,7 +190,6 @@ router.post('/conversations', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create conversation error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create conversation',

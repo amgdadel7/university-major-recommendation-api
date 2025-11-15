@@ -88,7 +88,6 @@ router.get('/:tableName', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get schema error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get table schema',
@@ -112,7 +111,6 @@ router.get('/', authenticate, isAdmin, async (req, res) => {
       data: tables.map(t => t.name)
     });
   } catch (error) {
-    console.error('Get tables error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get tables',

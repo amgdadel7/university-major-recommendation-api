@@ -124,7 +124,7 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Registration error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Registration failed',
@@ -291,7 +291,7 @@ router.post('/login', async (req, res) => {
         );
       } catch (e) {
         // Column might not exist, ignore error
-        console.log('LastLoginAt column might not exist in Students table');
+
       }
     }
 
@@ -334,7 +334,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Login failed',
@@ -428,7 +428,7 @@ router.get('/me', authenticate, async (req, res) => {
       data: user
     });
   } catch (error) {
-    console.error('Get user error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get user',
@@ -613,7 +613,7 @@ router.put('/me', authenticate, async (req, res) => {
       data: user
     });
   } catch (error) {
-    console.error('Update user error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to update profile',

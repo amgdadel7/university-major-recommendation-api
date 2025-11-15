@@ -17,7 +17,6 @@ router.get('/permissions', authenticate, isAdmin, async (req, res) => {
       data: permissions || []
     });
   } catch (error) {
-    console.error('Get permissions error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get permissions',
@@ -48,7 +47,6 @@ router.get('/permissions/:id', authenticate, isAdmin, async (req, res) => {
       data: permissions[0]
     });
   } catch (error) {
-    console.error('Get permission error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get permission',
@@ -82,7 +80,6 @@ router.post('/permissions', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create permission error:', error);
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({
         success: false,
@@ -113,7 +110,6 @@ router.put('/permissions/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Permission updated successfully'
     });
   } catch (error) {
-    console.error('Update permission error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update permission',
@@ -134,7 +130,6 @@ router.delete('/permissions/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Permission deleted successfully'
     });
   } catch (error) {
-    console.error('Delete permission error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete permission',
@@ -169,7 +164,6 @@ router.get('/roles', authenticate, isAdmin, async (req, res) => {
       data: formattedRoles
     });
   } catch (error) {
-    console.error('Get roles error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get roles',
@@ -211,7 +205,6 @@ router.get('/roles/:id', authenticate, isAdmin, async (req, res) => {
       data: role
     });
   } catch (error) {
-    console.error('Get role error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get role',
@@ -270,7 +263,6 @@ router.post('/roles', authenticate, isAdmin, async (req, res) => {
       throw error;
     }
   } catch (error) {
-    console.error('Create role error:', error);
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({
         success: false,
@@ -351,7 +343,6 @@ router.put('/roles/:id', authenticate, isAdmin, async (req, res) => {
       throw error;
     }
   } catch (error) {
-    console.error('Update role error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update role',
@@ -392,7 +383,6 @@ router.delete('/roles/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Role deleted successfully'
     });
   } catch (error) {
-    console.error('Delete role error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete role',

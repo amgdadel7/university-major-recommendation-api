@@ -108,7 +108,7 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal server error',
@@ -128,12 +128,7 @@ const PORT = process.env.PORT || 8000;
 
 // Listen on all network interfaces (0.0.0.0) to allow connections from other devices
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📚 API Version: ${API_VERSION}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📍 Base URL: http://localhost:${PORT}/api/${API_VERSION}`);
-  console.log(`📍 Network URL: http://10.0.0.66:${PORT}/api/${API_VERSION}`);
-  console.log(`📖 Swagger Documentation: http://localhost:${PORT}/api-docs`);
+
 });
 
 module.exports = app;

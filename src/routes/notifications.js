@@ -27,7 +27,6 @@ router.get('/', authenticate, async (req, res) => {
       data: notifications
     });
   } catch (error) {
-    console.error('Get notifications error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get notifications',
@@ -52,7 +51,6 @@ router.patch('/:id/read', authenticate, async (req, res) => {
       message: 'Notification marked as read'
     });
   } catch (error) {
-    console.error('Mark notification as read error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to mark notification as read',
@@ -77,7 +75,6 @@ router.patch('/read-all', authenticate, async (req, res) => {
       message: 'All notifications marked as read'
     });
   } catch (error) {
-    console.error('Mark all notifications as read error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to mark all notifications as read',
@@ -112,7 +109,6 @@ router.post('/', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create notification error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create notification',
@@ -137,7 +133,6 @@ router.delete('/:id', authenticate, async (req, res) => {
       message: 'Notification deleted successfully'
     });
   } catch (error) {
-    console.error('Delete notification error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete notification',

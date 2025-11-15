@@ -9,7 +9,6 @@ const logAudit = async (userId, userName, action, entity, description, ipAddress
       [userId, userName, action, entity, description, ipAddress, userAgent, severity]
     );
   } catch (error) {
-    console.error('Error logging audit:', error);
   }
 };
 

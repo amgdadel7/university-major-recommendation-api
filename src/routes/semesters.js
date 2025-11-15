@@ -52,7 +52,6 @@ router.get('/', authenticate, async (req, res) => {
       data: semesters
     });
   } catch (error) {
-    console.error('Get semesters error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get semesters',
@@ -86,7 +85,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: semesters[0]
     });
   } catch (error) {
-    console.error('Get semester error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get semester',
@@ -135,7 +133,6 @@ router.post('/', authenticate, isUniversity, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create semester error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create semester',
@@ -162,7 +159,6 @@ router.put('/:id', authenticate, isUniversity, async (req, res) => {
       message: 'Semester updated successfully'
     });
   } catch (error) {
-    console.error('Update semester error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update semester',
@@ -183,7 +179,6 @@ router.delete('/:id', authenticate, isUniversity, async (req, res) => {
       message: 'Semester deleted successfully'
     });
   } catch (error) {
-    console.error('Delete semester error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete semester',

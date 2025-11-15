@@ -70,7 +70,7 @@ async function fetchSettingsFromDatabase() {
     const [rows] = await pool.execute('SELECT * FROM AISettings WHERE SettingID = 1');
     return rows[0] || null;
   } catch (error) {
-    console.error('Failed to load AI settings from database:', error);
+
     return null;
   }
 }

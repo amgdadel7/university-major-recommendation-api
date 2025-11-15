@@ -20,7 +20,6 @@ router.get('/', authenticate, async (req, res) => {
       data: teachers
     });
   } catch (error) {
-    console.error('Get teachers error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get teachers',
@@ -56,7 +55,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: teachers[0]
     });
   } catch (error) {
-    console.error('Get teacher error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get teacher',
@@ -85,7 +83,6 @@ router.get('/:id/students', authenticate, async (req, res) => {
       data: students
     });
   } catch (error) {
-    console.error('Get teacher students error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get students',
@@ -130,7 +127,6 @@ router.post('/:id/students', authenticate, isAdmin, async (req, res) => {
       message: 'Student assigned successfully'
     });
   } catch (error) {
-    console.error('Assign student error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to assign student',
@@ -154,7 +150,6 @@ router.delete('/:id/students/:studentId', authenticate, isAdmin, async (req, res
       message: 'Student unassigned successfully'
     });
   } catch (error) {
-    console.error('Unassign student error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to unassign student',

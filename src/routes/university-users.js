@@ -31,7 +31,6 @@ router.get('/', authenticate, isUniversity, async (req, res) => {
       data: users
     });
   } catch (error) {
-    console.error('Get university users error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get university users',
@@ -66,7 +65,6 @@ router.get('/:id', authenticate, isUniversity, async (req, res) => {
       data: users[0]
     });
   } catch (error) {
-    console.error('Get university user error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get university user',
@@ -144,7 +142,6 @@ router.post('/', authenticate, isUniversity, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create university user error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create university user',
@@ -225,7 +222,6 @@ router.put('/:id', authenticate, isUniversity, async (req, res) => {
       message: 'University user updated successfully'
     });
   } catch (error) {
-    console.error('Update university user error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update university user',
@@ -284,7 +280,6 @@ router.put('/:id/password', authenticate, isUniversity, async (req, res) => {
       message: 'Password updated successfully'
     });
   } catch (error) {
-    console.error('Update password error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update password',
@@ -345,7 +340,6 @@ router.delete('/:id', authenticate, isUniversity, async (req, res) => {
       message: 'University user deleted successfully'
     });
   } catch (error) {
-    console.error('Delete university user error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete university user',

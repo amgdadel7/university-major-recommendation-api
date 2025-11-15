@@ -30,7 +30,6 @@ router.get('/', authenticate, async (req, res) => {
       data: content
     });
   } catch (error) {
-    console.error('Get content error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get content',
@@ -61,7 +60,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: content[0]
     });
   } catch (error) {
-    console.error('Get content error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get content',
@@ -97,7 +95,6 @@ router.post('/', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create content error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create content',
@@ -123,7 +120,6 @@ router.put('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Content updated successfully'
     });
   } catch (error) {
-    console.error('Update content error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update content',
@@ -144,7 +140,6 @@ router.delete('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Content deleted successfully'
     });
   } catch (error) {
-    console.error('Delete content error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete content',

@@ -126,63 +126,54 @@ async function seedProfessionalQuestions() {
   const autoConfirm = (process.env.AUTO_CONFIRM || '').toLowerCase() === 'true';
   const totalNewQuestions = curatedQuestions.length;
   try {
-    console.log('📚 إعادة تهيئة أسئلة الاستبيان - نسخة احترافية متوافقة مع توصيات الذكاء الاصطناعي\n');
 
     const [currentCountResult] = await pool.execute('SELECT COUNT(*) AS count FROM Questions');
     const currentCount = currentCountResult[0]?.count || 0;
-    console.log(`📊 عدد الأسئلة الحالية في قاعدة البيانات: ${currentCount}`);
-    console.log(`🆕 عدد الأسئلة الجديدة الجاهزة للإدخال: ${totalNewQuestions}\n`);
 
     if (currentCount > 0) {
       if (!autoConfirm) {
         const confirmDelete = await ask('⚠️ سيتم حذف جميع الأسئلة الحالية. هل تريد المتابعة؟ (yes/no): ');
         if (confirmDelete.trim().toLowerCase() !== 'yes') {
-          console.log('\n❌ تم إلغاء العملية بناءً على طلبك.');
+
           return;
         }
 
         const confirmPhrase = await ask('اكتب "CONFIRM RESET" للتأكيد: ');
         if (confirmPhrase.trim() !== 'CONFIRM RESET') {
-          console.log('\n❌ النص التأكيدي غير صحيح. تم إلغاء العملية.');
+
           return;
         }
       } else {
-        console.log('⚠️ تم تفعيل AUTO_CONFIRM، سيتم حذف الأسئلة الحالية وإعادة التهيئة دون مطالبة إضافية.');
+
       }
     } else if (!autoConfirm) {
       const confirmInsert = await ask('لا توجد أسئلة حالياً. هل تريد إدخال المجموعة الجديدة الآن؟ (yes/no): ');
       if (confirmInsert.trim().toLowerCase() !== 'yes') {
-        console.log('\n❌ تم إلغاء العملية بناءً على طلبك.');
+
         return;
       }
-    } else {
-      console.log('ℹ️ لا توجد أسئلة حالياً، وسيتم إدخال المجموعة الجديدة مباشرةً (AUTO_CONFIRM مفعّل).');
+    } else {.');
     }
 
-    console.log('\n🔄 جاري إعادة تهيئة جدول الأسئلة...');
     await pool.query('SET FOREIGN_KEY_CHECKS = 0');
     await pool.query('TRUNCATE TABLE Questions');
     await pool.query('SET FOREIGN_KEY_CHECKS = 1');
 
-    console.log('➕ جاري إدخال الأسئلة الاحترافية...');
     const insertSql = 'INSERT INTO Questions (Text, Category, Type) VALUES (?, ?, ?)';
 
     for (const question of curatedQuestions) {
-      await pool.execute(insertSql, [question.Text, question.Category, question.Type]);
-      console.log(`✅ تمت إضافة السؤال: [${question.Type}] ${question.Text.substring(0, 60)}...`);
+      await pool.execute(insertSql, [question.Text, question.Category, question.Type]);}...`);
     }
 
     const [verify] = await pool.execute('SELECT Type, COUNT(*) AS count FROM Questions GROUP BY Type');
     const totalInserted = verify.reduce((sum, item) => sum + item.count, 0);
 
-    console.log('\n🎉 تم الانتهاء بنجاح!');
-    console.log(`📈 إجمالي الأسئلة المضافة: ${totalInserted}`);
     verify.forEach((row) => {
-      console.log(`   • ${row.Type}: ${row.count}`);
+
     });
-    console.log('\n💡 ملاحظة: تم تصميم هذه الأسئلة لتغذية نموذج DeepSeek بتفضيلات واضحة مرتبطة بالتخصصات المتاحة.');
+
   } catch (error) {
-    console.error('\n❌ حدث خطأ أثناء إعادة تهيئة الأسئلة:', error.message);
+
     process.exitCode = 1;
   } finally {
     rl.close();
@@ -191,5 +182,4 @@ async function seedProfessionalQuestions() {
 }
 
 seedProfessionalQuestions();
-
 

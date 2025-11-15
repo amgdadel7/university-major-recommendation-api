@@ -20,9 +20,7 @@ router.get('/', (req, res) => {
 router.get('/questions', authenticate, async (req, res) => {
   try {
     const { type, category } = req.query;
-    
-    console.log('Fetching questions with filters:', { type, category }); // Debug
-    
+
     let query = `SELECT QuestionID as id, 
                         QuestionID as QuestionID,
                         Text as question, 
@@ -48,13 +46,7 @@ router.get('/questions', authenticate, async (req, res) => {
 
     query += ' ORDER BY Category, QuestionID';
 
-    console.log('Executing query:', query); // Debug
-    console.log('With params:', params); // Debug
-    
     const [questions] = await pool.execute(query, params);
-    
-    console.log('Raw questions from DB:', questions); // Debug
-    console.log('Questions count:', questions.length); // Debug
 
     // Map questions to include options (empty array for now, as Options column doesn't exist in DB)
     // In future, if Options column is added, we can parse it here
@@ -70,16 +62,12 @@ router.get('/questions', authenticate, async (req, res) => {
       options: []
     }));
 
-    console.log('Mapped questions:', questionsWithOptions); // Debug
-    console.log('Response data count:', questionsWithOptions.length); // Debug
-
     res.json({
       success: true,
       data: questionsWithOptions,
       count: questionsWithOptions.length
     });
   } catch (error) {
-    console.error('Get questions error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get questions',
@@ -123,7 +111,6 @@ router.get('/questions/:id', authenticate, async (req, res) => {
       data: question
     });
   } catch (error) {
-    console.error('Get question error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get question',
@@ -174,7 +161,6 @@ router.post('/questions', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create question error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create question',
@@ -216,7 +202,6 @@ router.put('/questions/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Question updated successfully'
     });
   } catch (error) {
-    console.error('Update question error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update question',
@@ -261,7 +246,6 @@ router.delete('/questions/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Question deleted successfully'
     });
   } catch (error) {
-    console.error('Delete question error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete question',
@@ -269,6 +253,46 @@ router.delete('/questions/:id', authenticate, isAdmin, async (req, res) => {
     });
   }
 });
+
+// Helper function to check if all surveys are complete
+async function checkAllSurveysComplete(studentId) {
+  try {
+    // Get all distinct survey types
+    const [types] = await pool.execute(
+      'SELECT DISTINCT Type FROM Questions'
+    );
+
+    if (types.length === 0) {
+      return { complete: false, missingTypes: [] };
+    }
+
+    const surveyTypes = types.map(t => t.Type);
+    const missingTypes = [];
+
+    // Check if student has answered at least one question from each type
+    for (const type of surveyTypes) {
+      const [answers] = await pool.execute(
+        `SELECT COUNT(*) as count 
+         FROM Answers a
+         JOIN Questions q ON a.QuestionID = q.QuestionID
+         WHERE a.StudentID = ? AND q.Type = ?`,
+        [studentId, type]
+      );
+
+      if (answers[0].count === 0) {
+        missingTypes.push(type);
+      }
+    }
+
+    return {
+      complete: missingTypes.length === 0,
+      missingTypes
+    };
+  } catch (error) {
+    console.error('Error checking survey completion:', error);
+    return { complete: false, missingTypes: [], error: error.message };
+  }
+}
 
 // Submit survey answers
 router.post('/submit', authenticate, async (req, res) => {
@@ -299,15 +323,117 @@ router.post('/submit', authenticate, async (req, res) => {
       );
     }
 
-    res.json({
+    // Check if all surveys are complete
+    const completionCheck = await checkAllSurveysComplete(studentId);
+    
+    const response = {
       success: true,
-      message: 'Survey answers submitted successfully'
-    });
+      message: 'Survey answers submitted successfully',
+      allSurveysComplete: completionCheck.complete
+    };
+
+    // If all surveys are complete, trigger recommendation generation
+    if (completionCheck.complete) {
+      try {
+        const { generateRecommendations } = require('../services/deepseek');
+        const { getAIConfig, isConfigured } = require('../services/deepseek');
+        
+        const aiConfig = await getAIConfig();
+        
+        if (await isConfigured({ config: aiConfig })) {
+          // Import the recommendation generation logic
+          const axios = require('axios');
+          
+          // Make internal call to generate recommendations
+          const apiUrl = req.protocol + '://' + req.get('host');
+          const token = req.headers.authorization;
+          
+          try {
+            const recommendationResponse = await axios.post(
+              `${apiUrl}/api/v1/recommendations/generate`,
+              {},
+              {
+                headers: {
+                  'Authorization': token,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+            
+            if (recommendationResponse.data.success) {
+              response.recommendationsGenerated = true;
+              response.recommendations = recommendationResponse.data.data;
+            }
+          } catch (recommendationError) {
+            // Log error but don't fail the survey submission
+            console.error('Error generating recommendations:', recommendationError);
+            response.recommendationError = recommendationError.message;
+          }
+        }
+      } catch (error) {
+        // Log error but don't fail the survey submission
+        console.error('Error checking AI configuration:', error);
+      }
+    }
+
+    res.json(response);
   } catch (error) {
-    console.error('Submit answers error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to submit answers',
+      error: error.message
+    });
+  }
+});
+
+// Save single answer (for progress tracking)
+router.post('/save-answer', authenticate, async (req, res) => {
+  try {
+    const { questionId, answer: answerText } = req.body;
+    const studentId = req.user.id;
+
+    if (!questionId || !answerText) {
+      return res.status(400).json({
+        success: false,
+        message: 'Question ID and answer are required'
+      });
+    }
+
+    // Insert or update single answer
+    await pool.execute(
+      `INSERT INTO Answers (StudentID, QuestionID, Answer) 
+       VALUES (?, ?, ?) 
+       ON DUPLICATE KEY UPDATE Answer = ?`,
+      [studentId, questionId, answerText, answerText]
+    );
+
+    res.json({
+      success: true,
+      message: 'Answer saved successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save answer',
+      error: error.message
+    });
+  }
+});
+
+// Check if all surveys are complete
+router.get('/completion-status', authenticate, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const completionCheck = await checkAllSurveysComplete(studentId);
+    
+    res.json({
+      success: true,
+      data: completionCheck
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to check completion status',
       error: error.message
     });
   }
@@ -333,7 +459,6 @@ router.get('/my-answers', authenticate, async (req, res) => {
       data: answers
     });
   } catch (error) {
-    console.error('Get my answers error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get answers',

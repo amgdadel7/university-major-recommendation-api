@@ -33,7 +33,6 @@ router.get('/', authenticate, async (req, res) => {
       data: applications
     });
   } catch (error) {
-    console.error('Get applications error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get applications',
@@ -81,7 +80,6 @@ router.post('/', authenticate, isStudent, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create application error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create application',
@@ -120,7 +118,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: applications[0]
     });
   } catch (error) {
-    console.error('Get application error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get application',
@@ -160,7 +157,6 @@ router.patch('/:id/status', authenticate, async (req, res) => {
       message: 'Application status updated successfully'
     });
   } catch (error) {
-    console.error('Update application status error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update application status',
@@ -252,7 +248,6 @@ router.put('/:id', authenticate, isStudent, async (req, res) => {
       data: updated[0]
     });
   } catch (error) {
-    console.error('Update application error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update application',
@@ -287,7 +282,6 @@ router.delete('/:id', authenticate, isStudent, async (req, res) => {
       message: 'Application deleted successfully'
     });
   } catch (error) {
-    console.error('Delete application error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete application',

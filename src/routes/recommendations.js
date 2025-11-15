@@ -105,7 +105,7 @@ router.get('/', authenticate, async (req, res) => {
       data: recommendations
     });
   } catch (error) {
-    console.error('Get recommendations error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get recommendations',
@@ -179,7 +179,7 @@ router.post('/generate', authenticate, async (req, res) => {
           extraPreferences = parsed.preferences || {};
         }
       } catch (error) {
-        console.warn('Failed to parse AcademicData JSON:', error.message);
+
       }
     }
 
@@ -190,7 +190,7 @@ router.post('/generate', authenticate, async (req, res) => {
           extraPreferences = { ...extraPreferences, ...parsed };
         }
       } catch (error) {
-        console.warn('Failed to parse Preferences JSON:', error.message);
+
       }
     }
 
@@ -349,7 +349,7 @@ router.post('/generate', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Generate AI recommendations error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to generate recommendations',

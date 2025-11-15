@@ -36,7 +36,6 @@ router.get('/', authenticate, async (req, res) => {
       data: universities
     });
   } catch (error) {
-    console.error('Get universities error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get universities',
@@ -98,7 +97,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: university
     });
   } catch (error) {
-    console.error('Get university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get university',
@@ -126,7 +124,6 @@ router.get('/:id/majors', authenticate, async (req, res) => {
       data: majors
     });
   } catch (error) {
-    console.error('Get university majors error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get majors',
@@ -197,7 +194,6 @@ router.post('/', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create university',
@@ -296,7 +292,6 @@ router.put('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'University updated successfully'
     });
   } catch (error) {
-    console.error('Update university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update university',
@@ -340,7 +335,6 @@ router.delete('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'University deleted successfully'
     });
   } catch (error) {
-    console.error('Delete university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete university',
@@ -372,7 +366,6 @@ router.post('/:id/majors', authenticate, isUniversity, async (req, res) => {
       message: 'Major added to university successfully'
     });
   } catch (error) {
-    console.error('Add major to university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to add major',
@@ -396,7 +389,6 @@ router.delete('/:id/majors/:majorId', authenticate, isUniversity, async (req, re
       message: 'Major removed from university successfully'
     });
   } catch (error) {
-    console.error('Remove major from university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to remove major',
@@ -427,7 +419,6 @@ router.get('/:id/applications', authenticate, isUniversity, async (req, res) => 
       data: applications
     });
   } catch (error) {
-    console.error('Get university applications error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get applications',
@@ -467,7 +458,6 @@ router.post('/:id/approve', authenticate, isAdmin, async (req, res) => {
       message: 'University approved successfully'
     });
   } catch (error) {
-    console.error('Approve university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to approve university',
@@ -507,7 +497,6 @@ router.post('/:id/reject', authenticate, isAdmin, async (req, res) => {
       message: 'University rejected successfully'
     });
   } catch (error) {
-    console.error('Reject university error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to reject university',

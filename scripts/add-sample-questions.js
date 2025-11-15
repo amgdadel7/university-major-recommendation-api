@@ -62,71 +62,41 @@ const sampleQuestions = [
 
 async function addSampleQuestions() {
   try {
-    console.log('🔄 Starting to add sample questions...\n');
-
     // Check if questions already exist
     const [existingQuestions] = await pool.execute(
       'SELECT COUNT(*) as count FROM Questions'
     );
 
     const count = existingQuestions[0].count;
-    console.log(`📊 Current questions in database: ${count}\n`);
-
     if (count > 0) {
-      console.log('⚠️  Database already contains questions.');
-      console.log('💡 To add new questions, delete existing ones first or modify this script.\n');
-      
       // Show existing questions
       const [questions] = await pool.execute(
         'SELECT QuestionID, Text, Type, Category FROM Questions ORDER BY Type, QuestionID'
       );
-      
-      console.log('📝 Existing questions:');
-      questions.forEach((q, index) => {
-        console.log(`   ${index + 1}. [${q.Type}] ${q.Text.substring(0, 50)}...`);
+      questions.forEach((q, index) => {}...`);
       });
       
       return;
     }
 
     // Insert questions
-    console.log('➕ Inserting sample questions...\n');
-    
     for (const question of sampleQuestions) {
       try {
         await pool.execute(
           'INSERT INTO Questions (Text, Type, Category) VALUES (?, ?, ?)',
           [question.Text, question.Type, question.Category]
-        );
-        console.log(`✅ Added: [${question.Type}] ${question.Text.substring(0, 50)}...`);
-      } catch (error) {
-        console.error(`❌ Error adding question: ${question.Text.substring(0, 50)}...`);
-        console.error(`   Error: ${error.message}`);
+        );}...`);
+      } catch (error) {}...`);
       }
     }
 
     // Verify inserted questions
-    console.log('\n🔍 Verifying inserted questions...\n');
-    
     const [allQuestions] = await pool.execute(
       'SELECT QuestionID, Text, Type, Category FROM Questions ORDER BY Type, QuestionID'
     );
-
-    console.log(`📊 Total questions in database: ${allQuestions.length}\n`);
-    
     const interestsCount = allQuestions.filter(q => q.Type === 'interests').length;
     const learningStyleCount = allQuestions.filter(q => q.Type === 'learning_style' || q.Type === 'learning-style').length;
-
-    console.log(`📈 Statistics:`);
-    console.log(`   - Interest questions: ${interestsCount}`);
-    console.log(`   - Learning style questions: ${learningStyleCount}`);
-    console.log(`   - Total: ${allQuestions.length}\n`);
-
-    console.log('✅ Sample questions added successfully!\n');
-    console.log('💡 Refresh the surveys page to see the questions.\n');
-
   } catch (error) {
-    console.error('❌ Error adding sample questions:', error);
     process.exit(1);
   } finally {
     await pool.end();

@@ -50,7 +50,6 @@ router.get('/', authenticate, async (req, res) => {
       data: interviews
     });
   } catch (error) {
-    console.error('Get interviews error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get interviews',
@@ -89,7 +88,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: interviews[0]
     });
   } catch (error) {
-    console.error('Get interview error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get interview',
@@ -144,7 +142,6 @@ router.post('/', authenticate, isUniversity, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Schedule interview error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to schedule interview',
@@ -171,7 +168,6 @@ router.put('/:id', authenticate, isUniversity, async (req, res) => {
       message: 'Interview updated successfully'
     });
   } catch (error) {
-    console.error('Update interview error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update interview',
@@ -195,7 +191,6 @@ router.patch('/:id/cancel', authenticate, async (req, res) => {
       message: 'Interview cancelled successfully'
     });
   } catch (error) {
-    console.error('Cancel interview error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to cancel interview',

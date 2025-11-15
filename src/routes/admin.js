@@ -28,7 +28,7 @@ router.get('/users', authenticate, isAdmin, async (req, res) => {
       data: allUsers
     });
   } catch (error) {
-    console.error('Get users error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get users',
@@ -143,7 +143,7 @@ router.get('/statistics', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get admin statistics error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get statistics',
@@ -156,9 +156,6 @@ router.get('/statistics', authenticate, isAdmin, async (req, res) => {
 router.get('/audit-logs', authenticate, isAdmin, async (req, res) => {
   try {
     const { action, entity, severity, limit = 1000, offset = 0 } = req.query;
-    
-    console.log('🔍 Audit logs request received:', { action, entity, severity, limit, offset });
-    console.log('👤 User:', req.user);
 
     // Build query with filters
     let query = 'SELECT LogID, UserID, UserName, Action, Entity, Description, IPAddress, UserAgent, Severity, CreatedAt FROM AuditLogs WHERE 1=1';
@@ -206,17 +203,12 @@ router.get('/audit-logs', authenticate, isAdmin, async (req, res) => {
     const offsetValue = parseInt(offset) || 0;
     params.push(limitValue, offsetValue);
 
-    console.log('📝 Executing query:', query);
-    console.log('📝 Query params:', params);
-
     const [logs] = await pool.execute(query, params);
-    
-    console.log('✅ Found audit logs:', logs.length);
-    console.log('📊 Total count:', total);
+
     if (logs.length > 0) {
-      console.log('📊 Sample log:', logs[0]);
+
     } else {
-      console.log('📊 No logs found in database');
+
     }
 
     res.json({
@@ -230,15 +222,12 @@ router.get('/audit-logs', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Get audit logs error:', error);
-    console.error('❌ Error stack:', error.stack);
-    console.error('❌ Error message:', error.message);
-    
+
     // Check if table exists
     try {
       const [tables] = await pool.execute("SHOW TABLES LIKE 'AuditLogs'");
       if (tables.length === 0) {
-        console.error('❌ AuditLogs table does not exist!');
+
         return res.status(500).json({
           success: false,
           message: 'AuditLogs table does not exist. Please run database migrations.',
@@ -246,7 +235,7 @@ router.get('/audit-logs', authenticate, isAdmin, async (req, res) => {
         });
       }
     } catch (tableCheckError) {
-      console.error('❌ Error checking table existence:', tableCheckError);
+
     }
     
     res.status(500).json({
@@ -289,7 +278,7 @@ router.post('/audit-logs', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create audit log error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to create audit log',
@@ -349,7 +338,7 @@ router.get('/ai-settings', authenticate, isAdmin, async (req, res) => {
       data: aiSettings
     });
   } catch (error) {
-    console.error('Get AI settings error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get AI settings',
@@ -437,7 +426,7 @@ router.put('/ai-settings', authenticate, isAdmin, async (req, res) => {
       message: 'AI settings updated successfully'
     });
   } catch (error) {
-    console.error('Update AI settings error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to update AI settings',
@@ -479,7 +468,7 @@ router.post('/ai-settings/test-connection', authenticate, isAdmin, async (req, r
       });
     }
   } catch (error) {
-    console.error('Test AI connection error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to test API connection',
@@ -513,7 +502,7 @@ router.get('/ai-usage-stats', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get AI usage stats error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get AI usage statistics',
@@ -592,7 +581,7 @@ router.get('/system-settings', authenticate, isAdmin, async (req, res) => {
       data: systemSettings
     });
   } catch (error) {
-    console.error('Get system settings error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get system settings',
@@ -723,7 +712,7 @@ router.put('/system-settings', authenticate, isAdmin, async (req, res) => {
       message: 'System settings updated successfully'
     });
   } catch (error) {
-    console.error('Update system settings error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to update system settings',

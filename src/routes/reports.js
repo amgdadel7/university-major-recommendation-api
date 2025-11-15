@@ -30,7 +30,7 @@ router.get('/', authenticate, isAdmin, async (req, res) => {
       data: reports
     });
   } catch (error) {
-    console.error('Get reports error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get reports',
@@ -67,7 +67,7 @@ router.post('/generate', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Generate report error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to generate report',
@@ -98,7 +98,7 @@ router.get('/:id', authenticate, isAdmin, async (req, res) => {
       data: reports[0]
     });
   } catch (error) {
-    console.error('Get report error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to get report',
@@ -179,7 +179,7 @@ router.put('/:id', authenticate, isAdmin, async (req, res) => {
       data: updatedReports[0]
     });
   } catch (error) {
-    console.error('Update report error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to update report',
@@ -200,7 +200,7 @@ router.delete('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Report deleted successfully'
     });
   } catch (error) {
-    console.error('Delete report error:', error);
+
     res.status(500).json({
       success: false,
       message: 'Failed to delete report',

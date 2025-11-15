@@ -39,7 +39,6 @@ router.get('/', authenticate, async (req, res) => {
       data: events
     });
   } catch (error) {
-    console.error('Get calendar events error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get calendar events',
@@ -76,7 +75,6 @@ router.post('/', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create calendar event error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create calendar event',
@@ -116,7 +114,6 @@ router.put('/:id', authenticate, async (req, res) => {
       message: 'Calendar event updated successfully'
     });
   } catch (error) {
-    console.error('Update calendar event error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update calendar event',
@@ -141,7 +138,6 @@ router.delete('/:id', authenticate, async (req, res) => {
       message: 'Calendar event deleted successfully'
     });
   } catch (error) {
-    console.error('Delete calendar event error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete calendar event',

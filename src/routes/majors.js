@@ -16,7 +16,6 @@ router.get('/', authenticate, async (req, res) => {
       data: majors
     });
   } catch (error) {
-    console.error('Get majors error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get majors',
@@ -47,7 +46,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: majors[0]
     });
   } catch (error) {
-    console.error('Get major error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get major',
@@ -97,7 +95,6 @@ router.post('/', authenticate, isAdmin, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Create major error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create major',
@@ -138,7 +135,6 @@ router.put('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Major updated successfully'
     });
   } catch (error) {
-    console.error('Update major error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update major',
@@ -182,7 +178,6 @@ router.delete('/:id', authenticate, isAdmin, async (req, res) => {
       message: 'Major deleted successfully'
     });
   } catch (error) {
-    console.error('Delete major error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to delete major',

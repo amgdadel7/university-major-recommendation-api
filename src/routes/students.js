@@ -32,7 +32,6 @@ router.get('/', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get students error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get students',
@@ -66,7 +65,6 @@ router.get('/:id', authenticate, async (req, res) => {
       data: students[0]
     });
   } catch (error) {
-    console.error('Get student error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get student',
@@ -96,7 +94,6 @@ router.get('/:id/tracking', authenticate, async (req, res) => {
       data: notes
     });
   } catch (error) {
-    console.error('Get tracking notes error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get tracking notes',
@@ -133,7 +130,6 @@ router.post('/:id/tracking', authenticate, isTeacher, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Add tracking note error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to add tracking note',
@@ -164,7 +160,6 @@ router.get('/:id/applications', authenticate, async (req, res) => {
       data: applications
     });
   } catch (error) {
-    console.error('Get student applications error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get applications',
@@ -194,10 +189,64 @@ router.get('/:id/recommendations', authenticate, async (req, res) => {
       data: recommendations
     });
   } catch (error) {
-    console.error('Get recommendations error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to get recommendations',
+      error: error.message
+    });
+  }
+});
+
+// Save student grades (AcademicData)
+router.post('/me/grades', authenticate, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const { grades } = req.body;
+
+    if (!grades || !Array.isArray(grades)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Grades array is required'
+      });
+    }
+
+    // Get current AcademicData
+    const [studentRows] = await pool.execute(
+      'SELECT AcademicData FROM Students WHERE StudentID = ?',
+      [studentId]
+    );
+
+    if (studentRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    // Prepare academic data with grades
+    const academicData = {
+      courses: grades.map(grade => ({
+        subject: grade.subject || grade.name,
+        grade: parseFloat(grade.grade) || 0
+      })),
+      updatedAt: new Date().toISOString()
+    };
+
+    // Update AcademicData
+    await pool.execute(
+      'UPDATE Students SET AcademicData = ? WHERE StudentID = ?',
+      [JSON.stringify(academicData), studentId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Grades saved successfully',
+      data: academicData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to save grades',
       error: error.message
     });
   }

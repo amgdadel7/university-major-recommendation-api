@@ -26,7 +26,6 @@ router.get('/settings', authenticate, async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Failed to fetch AI configuration:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch AI configuration',
