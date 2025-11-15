@@ -221,16 +221,37 @@ router.get('/me/grades', authenticate, async (req, res) => {
     if (academicData) {
       try {
         const parsed = JSON.parse(academicData);
+        
+        // Check for new format: {courses: [{subject, grade}, ...]}
         if (parsed.courses && Array.isArray(parsed.courses)) {
           grades = parsed.courses.map(course => ({
             subject: course.subject || course.name || '',
             grade: parseFloat(course.grade) || 0
           }));
         }
+        // Check for old format: {math: 95, science: 88, english: 80}
+        else if (typeof parsed === 'object' && parsed !== null) {
+          // Convert object format to array format
+          grades = Object.entries(parsed)
+            .filter(([key, value]) => {
+              // Skip metadata fields like 'updatedAt', 'createdAt', etc.
+              const metadataFields = ['updatedAt', 'createdAt', 'timestamp'];
+              return !metadataFields.includes(key) && typeof value === 'number';
+            })
+            .map(([subject, grade]) => ({
+              subject: subject,
+              grade: parseFloat(grade) || 0
+            }));
+        }
+        
+        console.log(`Loaded ${grades.length} grades for student ${studentId}`);
       } catch (error) {
         // If parsing fails, return empty array
         console.error('Error parsing AcademicData:', error);
+        console.error('AcademicData content:', academicData);
       }
+    } else {
+      console.log(`No AcademicData found for student ${studentId}`);
     }
 
     res.json({
