@@ -197,6 +197,57 @@ router.get('/:id/recommendations', authenticate, async (req, res) => {
   }
 });
 
+// Get student grades (AcademicData)
+router.get('/me/grades', authenticate, async (req, res) => {
+  try {
+    const studentId = req.user.id;
+
+    // Get student AcademicData
+    const [studentRows] = await pool.execute(
+      'SELECT AcademicData FROM Students WHERE StudentID = ?',
+      [studentId]
+    );
+
+    if (studentRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    let grades = [];
+    const academicData = studentRows[0].AcademicData;
+
+    if (academicData) {
+      try {
+        const parsed = JSON.parse(academicData);
+        if (parsed.courses && Array.isArray(parsed.courses)) {
+          grades = parsed.courses.map(course => ({
+            subject: course.subject || course.name || '',
+            grade: parseFloat(course.grade) || 0
+          }));
+        }
+      } catch (error) {
+        // If parsing fails, return empty array
+        console.error('Error parsing AcademicData:', error);
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        grades: grades
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get grades',
+      error: error.message
+    });
+  }
+});
+
 // Save student grades (AcademicData)
 router.post('/me/grades', authenticate, async (req, res) => {
   try {
