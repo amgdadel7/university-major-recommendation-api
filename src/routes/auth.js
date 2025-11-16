@@ -37,6 +37,20 @@ router.post('/register', async (req, res) => {
   try {
     const { fullName, email, password, role, age, gender, universityId } = req.body;
 
+    // Normalize gender to match DB ENUM values for Students table
+    // DB expects: 'M', 'F', or 'Other'
+    let normalizedGender = null;
+    if (gender) {
+      const genderLower = String(gender).toLowerCase();
+      if (genderLower === 'male' || genderLower === 'm') {
+        normalizedGender = 'M';
+      } else if (genderLower === 'female' || genderLower === 'f') {
+        normalizedGender = 'F';
+      } else {
+        normalizedGender = 'Other';
+      }
+    }
+
     if (!fullName || !email || !password || !role) {
       return res.status(400).json({
         success: false,
@@ -64,7 +78,7 @@ router.post('/register', async (req, res) => {
     if (role === 'student') {
       const [result] = await pool.execute(
         'INSERT INTO Students (FullName, Email, PasswordHash, Age, Gender, CreatedAt) VALUES (?, ?, ?, ?, ?, NOW())',
-        [fullName, email, passwordHash, age || null, gender || null]
+        [fullName, email, passwordHash, age || null, normalizedGender]
       );
       userId = result.insertId;
     } else if (role === 'teacher') {
