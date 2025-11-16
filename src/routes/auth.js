@@ -58,9 +58,18 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if email already exists
+    // Check if email already exists across all user tables
+    // Use aligned UNION on Email column only to avoid column count mismatch
     const [existingUsers] = await pool.execute(
-      'SELECT * FROM Students WHERE Email = ? UNION SELECT * FROM Teachers WHERE Email = ? UNION SELECT * FROM Admins WHERE Email = ? UNION SELECT * FROM UniversityUsers WHERE Email = ?',
+      `
+      SELECT Email FROM Students WHERE Email = ?
+      UNION
+      SELECT Email FROM Teachers WHERE Email = ?
+      UNION
+      SELECT Email FROM Admins WHERE Email = ?
+      UNION
+      SELECT Email FROM UniversityUsers WHERE Email = ?
+      `,
       [email, email, email, email]
     );
 
