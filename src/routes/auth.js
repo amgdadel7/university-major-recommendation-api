@@ -138,7 +138,8 @@ router.post('/register', async (req, res) => {
       }
     });
   } catch (error) {
-
+    // Log detailed error on server for debugging 500s
+    console.error('Error in /api/v1/auth/register:', error);
     res.status(500).json({
       success: false,
       message: 'Registration failed',
