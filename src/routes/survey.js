@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Survey Routes / مسارات الاستبيانات
+ * This file handles all survey-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالاستبيانات
+ */
 
-// Survey API info endpoint
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/survey
+ * Survey API info endpoint / نقطة نهاية معلومات API الاستبيان
+ * Returns available survey endpoints
+ * يعيد نقاط نهاية الاستبيان المتاحة
+ */
 router.get('/', (req, res) => {
   res.json({
     success: true,
@@ -440,9 +451,36 @@ router.get('/completion-status', authenticate, async (req, res) => {
 });
 
 // Get my answers
+// Get my survey answers - filtered by current student
+// الحصول على إجابات الاستبيان الخاصة بي - مفلترة حسب الطالب الحالي
 router.get('/my-answers', authenticate, async (req, res) => {
   try {
-    const studentId = req.user.id;
+    const { id, role } = req.user;
+
+    // Only students can access their own answers
+    // فقط الطلاب يمكنهم الوصول إلى إجاباتهم
+    if (role !== 'student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only students can access their survey answers'
+      });
+    }
+
+    // Get StudentID from Students table to ensure we have the correct ID
+    // الحصول على StudentID من جدول Students للتأكد من أن لدينا المعرف الصحيح
+    const [studentRows] = await pool.execute(
+      'SELECT StudentID FROM Students WHERE StudentID = ?',
+      [id]
+    );
+
+    if (studentRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    const studentId = studentRows[0].StudentID;
 
     const [answers] = await pool.execute(
       `SELECT a.AnswerID as id, a.Answer, a.QuestionID,

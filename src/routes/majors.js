@@ -1,10 +1,21 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const { logAudit } = require('../middleware/logger');
-const router = express.Router();
+/**
+ * Majors Routes / مسارات التخصصات
+ * This file handles all major-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالتخصصات
+ */
 
-// Get all majors
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const { logAudit } = require('../middleware/logger'); // Audit logging function / دالة تسجيل التدقيق
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/majors
+ * Get all majors / الحصول على جميع التخصصات
+ * Returns a list of all available majors
+ * يعيد قائمة بجميع التخصصات المتاحة
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const [majors] = await pool.execute(
@@ -24,7 +35,12 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get major by ID
+/**
+ * GET /api/v1/majors/:id
+ * Get major by ID / الحصول على تخصص بالمعرف
+ * Returns detailed information about a specific major
+ * يعيد معلومات مفصلة عن تخصص محدد
+ */
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
@@ -54,7 +70,12 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-// Create major
+/**
+ * POST /api/v1/majors
+ * Create a new major / إنشاء تخصص جديد
+ * Creates a new major (admin only)
+ * ينشئ تخصصاً جديداً (للمدير فقط)
+ */
 router.post('/', authenticate, isAdmin, async (req, res) => {
   try {
     const { name, description } = req.body;

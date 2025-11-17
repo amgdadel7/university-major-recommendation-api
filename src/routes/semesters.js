@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isUniversity, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Semesters Routes / مسارات الفصول الدراسية
+ * This file handles all semester-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالفصول الدراسية
+ */
 
-// Get semesters
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isUniversity, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/semesters
+ * Get semesters / الحصول على الفصول الدراسية
+ * Returns semesters with application statistics
+ * يعيد الفصول الدراسية مع إحصائيات الطلبات
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const { universityId, status } = req.query;

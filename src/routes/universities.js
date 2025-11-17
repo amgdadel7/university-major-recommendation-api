@@ -1,10 +1,21 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin, isUniversity } = require('../middleware/auth');
-const { logAudit } = require('../middleware/logger');
-const router = express.Router();
+/**
+ * Universities Routes / مسارات الجامعات
+ * This file handles all university-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالجامعات
+ */
 
-// Get all universities
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin, isUniversity } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const { logAudit } = require('../middleware/logger'); // Audit logging function / دالة تسجيل التدقيق
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/universities
+ * Get all universities / الحصول على جميع الجامعات
+ * Returns a list of all universities with statistics
+ * يعيد قائمة بجميع الجامعات مع الإحصائيات
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const [universities] = await pool.execute(

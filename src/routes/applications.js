@@ -1,12 +1,31 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin, isUniversity, isStudent } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Applications Routes / مسارات الطلبات
+ * This file handles all application-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالطلبات
+ */
 
-// Get all applications
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin, isUniversity, isStudent } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/applications
+ * Get applications for current user / الحصول على الطلبات للمستخدم الحالي
+ * Returns a list of applications filtered by user role:
+ * - Students: only their own applications
+ * - Teachers: applications of their students
+ * - Admins/Universities: all applications (with optional status filter)
+ * يعيد قائمة بالطلبات المفلترة حسب دور المستخدم:
+ * - الطلاب: طلباتهم فقط
+ * - المعلمون: طلبات طلابهم
+ * - المديرون/الجامعات: جميع الطلبات (مع فلتر الحالة الاختياري)
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
+    const { id, role } = req.user;
     const status = req.query.status;
+    
     let query = `
       SELECT a.ApplicationID as id, a.Status, a.AppliedAt, a.Notes,
              s.StudentID as studentId, s.FullName as studentName, s.Email as studentEmail,
@@ -18,10 +37,79 @@ router.get('/', authenticate, async (req, res) => {
       JOIN Majors m ON a.MajorID = m.MajorID
     `;
     const params = [];
+    const whereConditions = [];
 
+    // Filter by user role
+    // التصفية حسب دور المستخدم
+    if (role === 'student') {
+      // Students can only see their own applications
+      // الطلاب يمكنهم رؤية طلباتهم فقط
+      // Get StudentID from Students table to ensure we have the correct ID
+      // الحصول على StudentID من جدول Students للتأكد من أن لدينا المعرف الصحيح
+      const [studentRows] = await pool.execute(
+        'SELECT StudentID FROM Students WHERE StudentID = ?',
+        [id]
+      );
+
+      if (studentRows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Student not found'
+        });
+      }
+
+      const studentId = studentRows[0].StudentID;
+      whereConditions.push('a.StudentID = ?');
+      params.push(studentId);
+    } else if (role === 'teacher') {
+      // Teachers can see applications of their students
+      // المعلمون يمكنهم رؤية طلبات طلابهم
+      const [teacherStudents] = await pool.execute(
+        'SELECT StudentID FROM Students WHERE TeacherID = ?',
+        [id]
+      );
+      
+      if (teacherStudents.length === 0) {
+        // No students assigned to this teacher
+        // لا يوجد طلاب مخصصون لهذا المعلم
+        return res.json({
+          success: true,
+          data: []
+        });
+      }
+      
+      const studentIds = teacherStudents.map(s => s.StudentID);
+      const placeholders = studentIds.map(() => '?').join(',');
+      whereConditions.push(`a.StudentID IN (${placeholders})`);
+      params.push(...studentIds);
+    } else if (role === 'university') {
+      // Universities can see applications for their university
+      // الجامعات يمكنها رؤية الطلبات لجامعتها
+      const [universityRows] = await pool.execute(
+        'SELECT UniversityID FROM UniversityUsers WHERE UserID = ?',
+        [id]
+      );
+      
+      if (universityRows.length > 0) {
+        const universityId = universityRows[0].UniversityID;
+        whereConditions.push('a.UniversityID = ?');
+        params.push(universityId);
+      }
+    }
+    // Admins can see all applications (no additional filter)
+    // المديرون يمكنهم رؤية جميع الطلبات (لا يوجد فلتر إضافي)
+
+    // Add status filter if provided
+    // إضافة فلتر الحالة إذا تم توفيره
     if (status) {
-      query += ' WHERE a.Status = ?';
+      whereConditions.push('a.Status = ?');
       params.push(status);
+    }
+
+    // Build WHERE clause
+    // بناء بند WHERE
+    if (whereConditions.length > 0) {
+      query += ' WHERE ' + whereConditions.join(' AND ');
     }
 
     query += ' ORDER BY a.AppliedAt DESC';

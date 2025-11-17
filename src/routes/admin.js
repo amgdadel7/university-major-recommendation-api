@@ -1,10 +1,21 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const { invalidateAIConfigCache } = require('../services/deepseek');
-const router = express.Router();
+/**
+ * Admin Routes / مسارات الإدارة
+ * This file handles all admin-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالإدارة
+ */
 
-// Get all users (students, teachers, admins)
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const { invalidateAIConfigCache } = require('../services/deepseek'); // AI config cache invalidation / إبطال التخزين المؤقت لتكوين AI
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/admin/users
+ * Get all users (students, teachers, admins) / الحصول على جميع المستخدمين (طلاب، معلمين، مدراء)
+ * Returns a combined list of all users from different tables
+ * يعيد قائمة مجمعة لجميع المستخدمين من جداول مختلفة
+ */
 router.get('/users', authenticate, isAdmin, async (req, res) => {
   try {
     const [students] = await pool.execute(

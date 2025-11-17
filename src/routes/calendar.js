@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Calendar Routes / مسارات التقويم
+ * This file handles all calendar-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالتقويم
+ */
 
-// Get calendar events
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/calendar
+ * Get calendar events / الحصول على أحداث التقويم
+ * Returns calendar events for the authenticated user
+ * يعيد أحداث التقويم للمستخدم المصادق عليه
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const { userId, userType, startDate, endDate } = req.query;

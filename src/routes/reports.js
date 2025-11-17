@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Reports Routes / مسارات التقارير
+ * This file handles all report-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالتقارير
+ */
 
-// Get all reports
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/reports
+ * Get all reports / الحصول على جميع التقارير
+ * Returns a list of all reports with optional filters
+ * يعيد قائمة بجميع التقارير مع فلاتر اختيارية
+ */
 router.get('/', authenticate, isAdmin, async (req, res) => {
   try {
     const { type, period } = req.query;

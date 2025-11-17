@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Schema Routes / مسارات مخطط قاعدة البيانات
+ * This file handles database schema-related API endpoints
+ * هذا الملف يتعامل مع نقاط نهاية API المتعلقة بمخطط قاعدة البيانات
+ */
 
-// Get table schema (columns information)
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/schema/:tableName
+ * Get table schema (columns information) / الحصول على مخطط الجدول (معلومات الأعمدة)
+ * Returns column information for a specific database table
+ * يعيد معلومات الأعمدة لجدول قاعدة بيانات محدد
+ */
 router.get('/:tableName', authenticate, isAdmin, async (req, res) => {
   try {
     const { tableName } = req.params;

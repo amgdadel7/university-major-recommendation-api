@@ -1,7 +1,13 @@
+/**
+ * Dashboard Routes / مسارات لوحة التحكم
+ * This file handles all dashboard-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بلوحة التحكم
+ */
+
 const express = require('express');
-const pool = require('../config/database');
-const { authenticate } = require('../middleware/auth');
-const router = express.Router();
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const router = express.Router(); // Express router instance / مثيل موجه Express
 
 /**
  * @swagger

@@ -1,9 +1,15 @@
+/**
+ * Recommendations Routes / مسارات التوصيات
+ * This file handles all recommendation-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالتوصيات
+ */
+
 const express = require('express');
-const pool = require('../config/database');
-const { logAudit } = require('../middleware/logger');
-const { generateRecommendations, isConfigured, getAIConfig } = require('../services/deepseek');
-const { authenticate } = require('../middleware/auth');
-const router = express.Router();
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { logAudit } = require('../middleware/logger'); // Audit logging function / دالة تسجيل التدقيق
+const { generateRecommendations, isConfigured, getAIConfig } = require('../services/deepseek'); // AI recommendation services / خدمات توصيات AI
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const router = express.Router(); // Express router instance / مثيل موجه Express
 
 /**
  * @swagger
@@ -29,6 +35,7 @@ const router = express.Router();
  *                     type: object
  */
 // Get recommendations for current user
+// الحصول على التوصيات للمستخدم الحالي
 router.get('/', authenticate, async (req, res) => {
   try {
     const { id, role } = req.user;
@@ -36,9 +43,26 @@ router.get('/', authenticate, async (req, res) => {
     let recommendations = [];
 
     if (role === 'student') {
-      // Get recommendations for student
+      // Get StudentID from Students table to ensure we have the correct ID
+      // الحصول على StudentID من جدول Students للتأكد من أن لدينا المعرف الصحيح
+      const [studentRows] = await pool.execute(
+        'SELECT StudentID FROM Students WHERE StudentID = ?',
+        [id]
+      );
+
+      if (studentRows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'Student not found'
+        });
+      }
+
+      const studentId = studentRows[0].StudentID;
+
+      // Get recommendations for student - filter by StudentID
+      // الحصول على التوصيات للطالب - التصفية حسب StudentID
       const [studentRecommendations] = await pool.execute(
-        `SELECT r.RecommendationID as id, r.GeneratedAt, r.RecommendationText, 
+        `SELECT r.RecommendationID as id, r.StudentID as studentId, r.GeneratedAt, r.RecommendationText, 
                 r.ConfidenceScore, r.Feedback, r.BiasDetected, r.ModelVersion,
                 m.MajorID as majorId, m.Name as majorName, m.Description as majorDescription,
                 u.Name as universityName, u.UniversityID as universityId
@@ -48,7 +72,7 @@ router.get('/', authenticate, async (req, res) => {
          LEFT JOIN Universities u ON um.UniversityID = u.UniversityID
          WHERE r.StudentID = ?
          ORDER BY r.GeneratedAt DESC`,
-        [id]
+        [studentId]
       );
       recommendations = studentRecommendations;
     } else if (role === 'teacher') {

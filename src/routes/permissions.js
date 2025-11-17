@@ -1,11 +1,20 @@
+/**
+ * Permissions Routes / مسارات الصلاحيات
+ * This file handles all permission-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالصلاحيات
+ */
+
 const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
 
-// ============= Permissions =============
-
-// Get all permissions
+/**
+ * GET /api/v1/admin/permissions
+ * Get all permissions / الحصول على جميع الصلاحيات
+ * Returns a list of all available permissions
+ * يعيد قائمة بجميع الصلاحيات المتاحة
+ */
 router.get('/permissions', authenticate, isAdmin, async (req, res) => {
   try {
     const [permissions] = await pool.execute(

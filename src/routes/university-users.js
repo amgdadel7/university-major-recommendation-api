@@ -1,11 +1,22 @@
-const express = require('express');
-const pool = require('../config/database');
-const bcrypt = require('bcryptjs');
-const { authenticate, isUniversity, isAdmin } = require('../middleware/auth');
-const { logAudit } = require('../middleware/logger');
-const router = express.Router();
+/**
+ * University Users Routes / مسارات مستخدمي الجامعات
+ * This file handles all university user-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بمستخدمي الجامعات
+ */
 
-// Get all university users (for the logged-in university)
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const bcrypt = require('bcryptjs'); // Password hashing library / مكتبة تشفير كلمات المرور
+const { authenticate, isUniversity, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const { logAudit } = require('../middleware/logger'); // Audit logging function / دالة تسجيل التدقيق
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/university-users
+ * Get all university users (for the logged-in university) / الحصول على جميع مستخدمي الجامعة (للجامعة المسجل دخولها)
+ * Returns a list of all users for the authenticated university
+ * يعيد قائمة بجميع المستخدمين للجامعة المصادق عليها
+ */
 router.get('/', authenticate, isUniversity, async (req, res) => {
   try {
     const universityId = req.user.UniversityID || req.user.universityId;

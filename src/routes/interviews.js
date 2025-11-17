@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isUniversity, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Interviews Routes / مسارات المقابلات
+ * This file handles all interview-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالمقابلات
+ */
 
-// Get interviews
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isUniversity, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/interviews
+ * Get interviews / الحصول على المقابلات
+ * Returns interviews based on user role and filters
+ * يعيد المقابلات بناءً على دور المستخدم والفلاتر
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const { status, studentId } = req.query;

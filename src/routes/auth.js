@@ -1,10 +1,16 @@
+/**
+ * Authentication Routes / مسارات المصادقة
+ * This file handles user authentication, registration, and login
+ * هذا الملف يتعامل مع مصادقة المستخدم والتسجيل وتسجيل الدخول
+ */
+
 const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const pool = require('../config/database');
-const { authenticate } = require('../middleware/auth');
-const { logAudit } = require('../middleware/logger');
-const router = express.Router();
+const bcrypt = require('bcryptjs'); // Password hashing library / مكتبة تشفير كلمات المرور
+const jwt = require('jsonwebtoken'); // JWT token library / مكتبة رموز JWT
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const { logAudit } = require('../middleware/logger'); // Audit logging function / دالة تسجيل التدقيق
+const router = express.Router(); // Express router instance / مثيل موجه Express
 
 /**
  * @swagger
@@ -32,13 +38,20 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-// Register
+/**
+ * POST /api/v1/auth/register
+ * Register a new user / تسجيل مستخدم جديد
+ * Creates a new user account in the appropriate table based on role
+ * ينشئ حساب مستخدم جديد في الجدول المناسب بناءً على الدور
+ */
 router.post('/register', async (req, res) => {
   try {
+    // Extract registration data from request body / استخراج بيانات التسجيل من جسم الطلب
     const { fullName, email, password, role, age, gender, universityId } = req.body;
 
     // Normalize gender to match DB ENUM values for Students table
-    // DB expects: 'M', 'F', or 'Other'
+    // تطبيع الجنس لتطابق قيم ENUM في قاعدة البيانات لجدول الطلاب
+    // DB expects: 'M', 'F', or 'Other' / قاعدة البيانات تتوقع: 'M' أو 'F' أو 'Other'
     let normalizedGender = null;
     if (gender) {
       const genderLower = String(gender).toLowerCase();

@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Messages Routes / مسارات الرسائل
+ * This file handles all messaging-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالرسائل
+ */
 
-// Get conversations
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/messages/conversations
+ * Get conversations / الحصول على المحادثات
+ * Returns all conversations for the authenticated user
+ * يعيد جميع المحادثات للمستخدم المصادق عليه
+ */
 router.get('/conversations', authenticate, async (req, res) => {
   try {
     const userId = req.user.id;

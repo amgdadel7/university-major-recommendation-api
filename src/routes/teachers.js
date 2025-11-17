@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin, isTeacher } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Teachers Routes / مسارات المعلمين
+ * This file handles all teacher-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالمعلمين
+ */
 
-// Get all teachers
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin, isTeacher } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/teachers
+ * Get all teachers / الحصول على جميع المعلمين
+ * Returns a list of all teachers with their university information
+ * يعيد قائمة بجميع المعلمين مع معلومات جامعاتهم
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const [teachers] = await pool.execute(

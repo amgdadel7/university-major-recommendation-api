@@ -1,10 +1,21 @@
+/**
+ * AI Routes / مسارات الذكاء الاصطناعي
+ * This file handles all AI-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالذكاء الاصطناعي
+ */
+
 const express = require('express');
-const router = express.Router();
+const router = express.Router(); // Express router instance / مثيل موجه Express
 
-const { authenticate } = require('../middleware/auth');
-const { getAIConfig, isConfigured } = require('../services/deepseek');
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const { getAIConfig, isConfigured } = require('../services/deepseek'); // AI configuration services / خدمات تكوين AI
 
-// Get AI configuration (without exposing API keys)
+/**
+ * GET /api/v1/ai/settings
+ * Get AI configuration (without exposing API keys) / الحصول على تكوين AI (دون كشف مفاتيح API)
+ * Returns AI configuration settings without sensitive data
+ * يعيد إعدادات تكوين AI دون البيانات الحساسة
+ */
 router.get('/settings', authenticate, async (req, res) => {
   try {
     const config = await getAIConfig();

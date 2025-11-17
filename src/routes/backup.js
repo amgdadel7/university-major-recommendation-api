@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Backup Routes / مسارات النسخ الاحتياطي
+ * This file handles all backup-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالنسخ الاحتياطي
+ */
 
-// Get all backups
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/backup
+ * Get all backups / الحصول على جميع النسخ الاحتياطية
+ * Returns a list of all backup records
+ * يعيد قائمة بجميع سجلات النسخ الاحتياطي
+ */
 router.get('/', authenticate, isAdmin, async (req, res) => {
   try {
     const { status } = req.query;

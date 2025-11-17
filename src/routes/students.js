@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin, isTeacher } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Students Routes / مسارات الطلاب
+ * This file handles all student-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالطلاب
+ */
 
-// Get all students (with pagination)
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin, isTeacher } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/students
+ * Get all students with pagination / الحصول على جميع الطلاب مع التقسيم
+ * Returns a paginated list of all students
+ * يعيد قائمة مقسمة لجميع الطلاب
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -40,7 +51,12 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get student by ID
+/**
+ * GET /api/v1/students/:id
+ * Get student by ID / الحصول على طالب بالمعرف
+ * Returns detailed information about a specific student
+ * يعيد معلومات مفصلة عن طالب محدد
+ */
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
@@ -73,7 +89,12 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-// Get student tracking notes
+/**
+ * GET /api/v1/students/:id/tracking
+ * Get student tracking notes / الحصول على ملاحظات متابعة الطالب
+ * Returns all tracking notes for a specific student
+ * يعيد جميع ملاحظات المتابعة لطالب محدد
+ */
 router.get('/:id/tracking', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
@@ -197,12 +218,39 @@ router.get('/:id/recommendations', authenticate, async (req, res) => {
   }
 });
 
-// Get student grades (AcademicData)
+// Get student grades (AcademicData) - filtered by current student
+// الحصول على درجات الطالب (AcademicData) - مفلترة حسب الطالب الحالي
 router.get('/me/grades', authenticate, async (req, res) => {
   try {
-    const studentId = req.user.id;
+    const { id, role } = req.user;
+
+    // Only students can access their own grades
+    // فقط الطلاب يمكنهم الوصول إلى درجاتهم
+    if (role !== 'student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only students can access their grades'
+      });
+    }
+
+    // Get StudentID from Students table to ensure we have the correct ID
+    // الحصول على StudentID من جدول Students للتأكد من أن لدينا المعرف الصحيح
+    const [studentIdRows] = await pool.execute(
+      'SELECT StudentID FROM Students WHERE StudentID = ?',
+      [id]
+    );
+
+    if (studentIdRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    const studentId = studentIdRows[0].StudentID;
 
     // Get student AcademicData
+    // الحصول على AcademicData للطالب
     const [studentRows] = await pool.execute(
       'SELECT AcademicData FROM Students WHERE StudentID = ?',
       [studentId]
@@ -269,11 +317,21 @@ router.get('/me/grades', authenticate, async (req, res) => {
   }
 });
 
-// Save student grades (AcademicData)
+// Save student grades (AcademicData) - filtered by current student
+// حفظ درجات الطالب (AcademicData) - مفلترة حسب الطالب الحالي
 router.post('/me/grades', authenticate, async (req, res) => {
   try {
-    const studentId = req.user.id;
+    const { id, role } = req.user;
     const { grades } = req.body;
+
+    // Only students can save their own grades
+    // فقط الطلاب يمكنهم حفظ درجاتهم
+    if (role !== 'student') {
+      return res.status(403).json({
+        success: false,
+        message: 'Only students can save their grades'
+      });
+    }
 
     if (!grades || !Array.isArray(grades)) {
       return res.status(400).json({
@@ -282,7 +340,24 @@ router.post('/me/grades', authenticate, async (req, res) => {
       });
     }
 
+    // Get StudentID from Students table to ensure we have the correct ID
+    // الحصول على StudentID من جدول Students للتأكد من أن لدينا المعرف الصحيح
+    const [studentIdRows] = await pool.execute(
+      'SELECT StudentID FROM Students WHERE StudentID = ?',
+      [id]
+    );
+
+    if (studentIdRows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+
+    const studentId = studentIdRows[0].StudentID;
+
     // Get current AcademicData
+    // الحصول على AcademicData الحالي
     const [studentRows] = await pool.execute(
       'SELECT AcademicData FROM Students WHERE StudentID = ?',
       [studentId]

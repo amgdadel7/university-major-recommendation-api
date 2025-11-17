@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Notifications Routes / مسارات الإشعارات
+ * This file handles all notification-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالإشعارات
+ */
 
-// Get notifications
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate } = require('../middleware/auth'); // Authentication middleware / برمجية المصادقة
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/notifications
+ * Get notifications / الحصول على الإشعارات
+ * Returns notifications for the authenticated user
+ * يعيد الإشعارات للمستخدم المصادق عليه
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const { isRead } = req.query;

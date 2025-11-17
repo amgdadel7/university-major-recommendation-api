@@ -1,9 +1,20 @@
-const express = require('express');
-const pool = require('../config/database');
-const { authenticate, isAdmin } = require('../middleware/auth');
-const router = express.Router();
+/**
+ * Content Routes / مسارات المحتوى
+ * This file handles all content-related API endpoints
+ * هذا الملف يتعامل مع جميع نقاط نهاية API المتعلقة بالمحتوى
+ */
 
-// Get all content
+const express = require('express');
+const pool = require('../config/database'); // Database connection pool / مجموعة اتصالات قاعدة البيانات
+const { authenticate, isAdmin } = require('../middleware/auth'); // Authentication and authorization middleware / برمجيات المصادقة والتفويض
+const router = express.Router(); // Express router instance / مثيل موجه Express
+
+/**
+ * GET /api/v1/content
+ * Get all content / الحصول على جميع المحتويات
+ * Returns a list of all content items with optional filters
+ * يعيد قائمة بجميع عناصر المحتوى مع فلاتر اختيارية
+ */
 router.get('/', authenticate, async (req, res) => {
   try {
     const { contentType, status } = req.query;
