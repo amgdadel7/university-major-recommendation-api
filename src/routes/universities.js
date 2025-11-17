@@ -15,8 +15,10 @@ const router = express.Router(); // Express router instance / مثيل موجه 
  * Get all universities / الحصول على جميع الجامعات
  * Returns a list of all universities with statistics
  * يعيد قائمة بجميع الجامعات مع الإحصائيات
+ * Public endpoint - no authentication required for registration page
+ * نقطة نهاية عامة - لا تتطلب مصادقة لصفحة التسجيل
  */
-router.get('/', authenticate, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const [universities] = await pool.execute(
       `SELECT u.UniversityID as id, 
